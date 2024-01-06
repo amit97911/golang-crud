@@ -70,7 +70,6 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var updateMovie Movie
 	_ = json.NewDecoder(r.Body).Decode(&updateMovie)
-	fmt.Println(updateMovie.Director)
 	for index, item := range movies {
 		if item.ID == params["id"] {
 			//deleting movie by id

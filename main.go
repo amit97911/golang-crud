@@ -31,6 +31,30 @@ func getMovies(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(movies)
 }
 
+func deleteMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			fmt.Println("Deleteting movie by ID:", item.ID)
+			movies = append(movies[:index], movies[index+1:]...)
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(movies)
+}
+
+func getMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for _, item := range movies {
+		if item.ID == params["id"] {
+			fmt.Println("Fetching movie by ID:", item.ID)
+			json.NewEncoder(w).Encode(item)
+		}
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -40,10 +64,10 @@ func main() {
 	movies = append(movies, Movie{ID: "4", Isbn: "isbn", Title: "title4", Director: &Director{FirstName: "firstName4", LastName: "lastName4"}})
 
 	router.HandleFunc("/movies", getMovies).Methods("GET")
-	// router.HandleFunc("/movies/{id}", getMovie).Methods("GET")
+	router.HandleFunc("/movies/{id}", getMovie).Methods("GET")
 	// router.HandleFunc("/movies", createMovie).Methods("POST")
 	// router.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
-	// router.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
+	router.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	srv := &http.Server{
 		Handler: router,

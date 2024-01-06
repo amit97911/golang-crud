@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -55,6 +56,15 @@ func getMovie(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func createMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var newMovie Movie
+	_ = json.NewDecoder(r.Body).Decode(&newMovie)
+	newMovie.ID = /*strconv.Itoa(rand.Intn(1000))*/ strconv.Itoa(len(movies)) // dummy
+	movies = append(movies, newMovie)
+	json.NewEncoder(w).Encode(newMovie)
+
+}
 func main() {
 	router := mux.NewRouter()
 
@@ -65,7 +75,7 @@ func main() {
 
 	router.HandleFunc("/movies", getMovies).Methods("GET")
 	router.HandleFunc("/movies/{id}", getMovie).Methods("GET")
-	// router.HandleFunc("/movies", createMovie).Methods("POST")
+	router.HandleFunc("/movies", createMovie).Methods("POST")
 	// router.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
 	router.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 

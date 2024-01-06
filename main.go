@@ -63,8 +63,26 @@ func createMovie(w http.ResponseWriter, r *http.Request) {
 	newMovie.ID = /*strconv.Itoa(rand.Intn(1000))*/ strconv.Itoa(len(movies)) // dummy
 	movies = append(movies, newMovie)
 	json.NewEncoder(w).Encode(newMovie)
-
 }
+
+func updateMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	var updateMovie Movie
+	_ = json.NewDecoder(r.Body).Decode(&updateMovie)
+	fmt.Println(updateMovie.Director)
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			//deleting movie by id
+			movies = append(movies[:index], movies[index+1:]...)
+			//creating movie with same id
+			updateMovie.ID = item.ID
+			movies = append(movies, updateMovie)
+			json.NewEncoder(w).Encode(updateMovie)
+		}
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -76,7 +94,7 @@ func main() {
 	router.HandleFunc("/movies", getMovies).Methods("GET")
 	router.HandleFunc("/movies/{id}", getMovie).Methods("GET")
 	router.HandleFunc("/movies", createMovie).Methods("POST")
-	// router.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
+	router.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
 	router.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	srv := &http.Server{
